@@ -1,17 +1,79 @@
 {% extends "base.html" %} {% block content %}
-<div class="rounded-2xl bg-white shadow p-6">
-  <h2 class="text-2xl font-semibold mb-2">Hello, Flask + Tailwind! 👋</h2>
-  <p class="text-slate-600">
-    Ambiente pronto para começar a integração com GitHub, LangChain e Mermaid.
-  </p>
-  <div class="mt-4">
-    <a
-      href="#"
-      class="inline-flex items-center gap-2 rounded-xl border px-4 py-2 hover:bg-slate-50"
+
+<div class="max-w-3xl mx-auto space-y-6">
+  <div class="rounded-2xl bg-white shadow p-8">
+    <h2 class="text-2xl font-semibold mb-2">Bem-vindo 👋</h2>
+    <p class="text-slate-600">
+      Esta ferramenta ajuda na documentação e modernização de código legado,
+      integrando com o GitHub e gerando fluxogramas com Mermaid.
+    </p>
+
+    <div class="mt-6 flex flex-wrap items-center gap-3">
+      <!-- Botão principal: decide rota automaticamente (/enter) -->
+      <a
+        href="{{ url_for('enter') }}"
+        class="inline-flex items-center gap-2 rounded-xl bg-slate-900 text-white px-5 py-2.5 hover:opacity-90"
+      >
+        Entrar {% if has_token %}
+        <span class="text-xs text-slate-300">(token encontrado)</span>
+        {% else %}
+        <span class="text-xs text-slate-300">(configure o token)</span>
+        {% endif %}
+      </a>
+
+      <!-- Acesso direto às telas (atalhos) -->
+      <a
+        href="{{ url_for('settings_get') }}"
+        class="inline-flex items-center gap-2 rounded-xl border px-4 py-2 hover:bg-slate-50"
+      >
+        Configurar Token
+      </a>
+
+      <a
+        href="{{ url_for('github_repos') }}"
+        class="inline-flex items-center gap-2 rounded-xl border px-4 py-2 hover:bg-slate-50"
+      >
+        Ver Repositórios
+      </a>
+    </div>
+
+    <div
+      class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-slate-600"
     >
-      Próximo passo
-      <span class="text-xs text-slate-500">(configurar rotas e serviços)</span>
-    </a>
+      <div class="rounded-xl border p-4">
+        <div class="font-semibold mb-1">Status do Token</div>
+        {% if has_token %}
+        <div class="text-green-700">Configurado ✅</div>
+        <div class="text-slate-500 mt-1">Pronto para listar repositórios.</div>
+        {% else %}
+        <div class="text-red-700">Não configurado ❌</div>
+        <div class="text-slate-500 mt-1">Clique em “Configurar Token”.</div>
+        {% endif %}
+      </div>
+      <div class="rounded-xl border p-4">
+        <div class="font-semibold mb-1">Próximo passo</div>
+        <div>Navegar até um arquivo do repositório e gerar documentação.</div>
+      </div>
+      <div class="rounded-xl border p-4">
+        <div class="font-semibold mb-1">Atalhos úteis</div>
+        <ul class="list-disc list-inside space-y-1">
+          <li>
+            <a class="underline" href="{{ url_for('health') }}">/health</a>
+          </li>
+          <li>
+            <a class="underline" href="{{ url_for('settings_get') }}"
+              >/settings</a
+            >
+          </li>
+          <li>
+            <a class="underline" href="{{ url_for('github_repos') }}"
+              >/github/repos</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>
+
 {% endblock %}

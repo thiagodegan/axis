@@ -25,7 +25,10 @@ def set_config_value(db, key: str, value: str | None):
 
 @app.get("/")
 def index():
-    return render_template("index.html")  # se quiser, crie um index.html ou use base
+    db = next(get_db())
+    enc_token = get_config_value(db, "github_token")
+    has_token = enc_token is not None
+    return render_template("index.html", has_token=has_token)
 
 @app.get("/health")
 def health():
@@ -94,6 +97,15 @@ def github_repos():
     except Exception as e:
         flash(f"Erro ao listar repositórios: {e}", "error")
         return redirect(url_for("settings_get"))
+    
+@app.get("/enter")
+def enter():
+    """Decide automaticamente pra onde ir ao clicar em 'Entrar' na home."""
+    db = next(get_db())
+    enc_token = get_config_value(db, "github_token")
+    if enc_token:
+        return redirect(url_for("github_repos"))
+    return redirect(url_for("settings_get"))    
 
 if __name__ == "__main__":
     app.run(debug=True)

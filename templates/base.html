@@ -9,8 +9,21 @@
   </head>
   <body class="bg-slate-100 text-slate-800">
     <header class="border-b bg-white">
-      <div class="max-w-5xl mx-auto px-4 py-4">
-        <h1 class="text-xl font-bold">FIAP Challenge - FORD</h1>
+      <div
+        class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between"
+      >
+        <h1 class="text-xl font-bold">
+          <a href="{{ url_for('index') }}">FIAP Challenge - FORD</a>
+        </h1>
+        <nav class="flex items-center gap-4 text-sm">
+          <a class="hover:underline" href="{{ url_for('index') }}">Home</a>
+          <a class="hover:underline" href="{{ url_for('settings_get') }}"
+            >Settings</a
+          >
+          <a class="hover:underline" href="{{ url_for('github_repos') }}"
+            >GitHub Repos</a
+          >
+        </nav>
       </div>
     </header>
 
