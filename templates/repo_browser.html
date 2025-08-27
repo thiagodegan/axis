@@ -23,9 +23,7 @@
 
       <div class="text-sm text-slate-500">Arquivos</div>
       <div class="max-h-[65vh] overflow-auto pr-1">
-        <ul class="text-sm">
-          {{ render_tree(tree, owner, repo, ref) }}
-        </ul>
+        {{ render_tree(tree, owner, repo, ref) }}
       </div>
     </div>
   </aside>
@@ -70,32 +68,3 @@
 
 {% endblock %}
 
-{% macro render_tree(node, owner, repo, ref, base_path="") %}
-  {% if node.type == 'dir' %}
-    {% for name, child in node.children|dictsort %}
-      {% if child.type == 'dir' %}
-        <li class="pl-2">
-          <details open>
-            <summary class="cursor-pointer select-none py-0.5">
-              <span class="mr-1">📁</span>{{ name }}
-            </summary>
-            <ul class="pl-4">
-              {% if tree and tree.children %}
-                {{ render_tree(tree, owner, repo, ref) }}
-              {% else %}
-                <li class="p-2 text-slate-400">Nenhum arquivo encontrado nesta ref.</li>
-              {% endif %}
-            </ul>
-          </details>
-        </li>
-      {% else %}
-        <li class="pl-2 py-0.5">
-          <a class="hover:underline"
-             href="{{ url_for('repo_browser', owner=owner, repo=repo, ref=ref, path=(child.path or (base_path ~ '/' ~ name))) }}">
-            <span class="mr-1">📄</span>{{ name }}
-          </a>
-        </li>
-      {% endif %}
-    {% endfor %}
-  {% endif %}
-{% endmacro %}
