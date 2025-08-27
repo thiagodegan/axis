@@ -1,0 +1,46 @@
+{% extends "base.html" %} {% block content %}
+<div class="max-w-5xl mx-auto space-y-4">
+  <div class="rounded-2xl bg-white shadow p-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-semibold">Repositórios do GitHub</h2>
+      <a href="{{ url_for('settings_get') }}" class="text-sm underline"
+        >Configurações</a
+      >
+    </div>
+    <div class="mt-4 overflow-hidden rounded-xl border">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+          <tr>
+            <th class="text-left p-3">Nome</th>
+            <th class="text-left p-3">Owner</th>
+            <th class="text-left p-3">Privado</th>
+            <th class="text-left p-3">Atualizado</th>
+            <th class="text-left p-3">Descrição</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in repos %}
+          <tr class="border-t hover:bg-slate-50">
+            <td class="p-3">
+              <a href="{{ r.html_url }}" target="_blank" class="underline"
+                >{{ r.name }}</a
+              >
+            </td>
+            <td class="p-3">{{ r.owner }}</td>
+            <td class="p-3">{{ "Sim" if r.private else "Não" }}</td>
+            <td class="p-3">{{ r.updated_at }}</td>
+            <td class="p-3">{{ r.description or "" }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" class="p-4 text-slate-500">
+              Nenhum repositório encontrado.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
