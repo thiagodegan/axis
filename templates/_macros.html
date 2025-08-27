@@ -1,0 +1,31 @@
+{% macro render_tree(node, owner, repo, ref) -%} {% if node and node.type ==
+'dir' and node.children %}
+<ul class="text-sm">
+  {# usamos o recurso 'recursive' do Jinja para percorrer a árvore #} {% for
+  name, child in node.children|dictsort recursive %} {% if child.type == 'dir'
+  %}
+  <li class="pl-2">
+    <details open>
+      <summary class="cursor-pointer select-none py-0.5">
+        <span class="mr-1">📁</span>{{ name }}
+      </summary>
+      {# chama 'loop(...)' passando os filhos do diretório #} {{
+      loop(child.children|dictsort) }}
+    </details>
+  </li>
+  {% elif child.type == 'file' %}
+  <li class="pl-2 py-0.5">
+    <a
+      class="hover:underline"
+      href="{{ url_for('repo_browser', owner=owner, repo=repo, ref=ref, path=child.path) }}"
+    >
+      <span class="mr-1">📄</span>{{ name }}
+    </a>
+  </li>
+  {% endif %} {% endfor %}
+</ul>
+{% else %}
+<div class="p-2 text-slate-400">
+  Nenhum arquivo encontrado nesta referência.
+</div>
+{% endif %} {%- endmacro %}
