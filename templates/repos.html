@@ -22,8 +22,20 @@
           {% for r in repos %}
           <tr class="border-t hover:bg-slate-50">
             <td class="p-3">
-              <a href="{{ r.html_url }}" target="_blank" class="underline"
-                >{{ r.name }}</a
+              <!-- Abre o navegador interno (IDE-like) -->
+              <a
+                href="{{ url_for('repo_browser', owner=r.owner, repo=r.name) }}"
+                class="underline font-medium"
+                >Abrir aqui</a
+              >
+              <span class="mx-2 text-slate-400">|</span>
+              <!-- Abre no GitHub em nova guia -->
+              <a
+                href="{{ r.html_url }}"
+                target="_blank"
+                class="underline"
+                title="Abrir no GitHub (externo)"
+                >GitHub ↗</a
               >
             </td>
             <td class="p-3">{{ r.owner }}</td>
