@@ -1,0 +1,62 @@
+{
+  "version": "1.0.0",
+  "file": { "path": "src/cobol/BILLPROC.cbl", "sha": "a2c7e11" },
+  "ref": "legacy",
+  "language": "cobol",
+  "detector": { "method": "heuristic", "confidence": 0.98 },
+  "units": [
+    {
+      "kind": "cobol",
+      "id": "u-VALIDATE-INPUT",
+      "name": "VALIDATE-INPUT",
+      "range": { "start_line": 420, "end_line": 510 },
+      "division": "PROCEDURE",
+      "purpose": "Valida campos do registro de cobrança antes do cálculo.",
+      "io": {
+        "working_storage": ["WS-AMOUNT", "WS-DATE"],
+        "files": ["BILLING-FILE"],
+        "inputs": ["REG-IN"],
+        "outputs": ["VALIDATION-STATUS"],
+        "side_effects": ["READ BILLING-FILE"]
+      },
+      "control_flow": {
+        "perform": ["CHECK-DATE", "CHECK-AMOUNT"],
+        "goto": [],
+        "call": [
+          { "program": "VALDATE", "using": ["WS-DATE"] }
+        ]
+      },
+      "logic": {
+        "steps": [
+          { "id": "s1", "text": "MOVE REG-IN TO WS-RECORD", "kind": "move" },
+          { "id": "s2", "text": "READ BILLING-FILE", "kind": "io" },
+          { "id": "s3", "text": "PERFORM CHECK-DATE", "kind": "perform" },
+          { "id": "s4", "text": "PERFORM CHECK-AMOUNT", "kind": "perform" }
+        ],
+        "decisions": [
+          {
+            "id": "d1",
+            "form": "IF",
+            "condition": "WS-DATE is invalid",
+            "branches": [
+              { "label": "true", "path": ["s3"] },
+              { "label": "false", "path": [] }
+            ]
+          },
+          {
+            "id": "d2",
+            "form": "EVALUATE",
+            "condition": "WS-AMOUNT range",
+            "branches": [
+              { "label": "LOW", "path": [] },
+              { "label": "OK", "path": [] },
+              { "label": "HIGH", "path": ["s4"] }
+            ]
+          }
+        ]
+      },
+      "diagram_suggestion": "flowchart",
+      "notes": "Dividir diagramas por parágrafo."
+    }
+  ]
+}

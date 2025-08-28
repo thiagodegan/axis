@@ -1,0 +1,51 @@
+{
+  "version": "1.0.0",
+  "file": { "path": "src/app/orders.py", "sha": "b13f9a1" },
+  "ref": "main",
+  "language": "python",
+  "detector": { "method": "extension", "confidence": 0.95 },
+  "units": [
+    {
+      "kind": "generic",
+      "id": "u_get_order",
+      "name": "get_order",
+      "range": { "start_line": 10, "end_line": 48 },
+      "signature": {
+        "parameters": [
+          { "name": "order_id", "type": "int", "mode": "in" }
+        ],
+        "returns": "Order | None"
+      },
+      "purpose": "Recupera um pedido por ID, validando existência e status.",
+      "io": {
+        "inputs": ["order_id"],
+        "outputs": ["Order"],
+        "side_effects": ["Consulta tabela orders no DB"]
+      },
+      "logic": {
+        "steps": [
+          { "id": "s1", "text": "Validar parâmetro", "kind": "action" },
+          { "id": "s2", "text": "Buscar no repositório", "kind": "io" },
+          { "id": "s3", "text": "Retornar objeto ou None", "kind": "return" }
+        ],
+        "decisions": [
+          {
+            "id": "d1",
+            "condition": "order not found",
+            "true_path": ["s3"],
+            "false_path": ["s3"]
+          }
+        ],
+        "calls": [
+          { "target": "repo.get_order_by_id", "kind": "function" }
+        ]
+      },
+      "diagram_suggestion": "flowchart"
+    }
+  ],
+  "summary": {
+    "unit_count": 1,
+    "diagram_suggestion": "flowchart",
+    "notes": "Arquivo simples com uma função utilitária."
+  }
+}

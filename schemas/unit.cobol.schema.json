@@ -1,0 +1,131 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "unit.cobol.schema.json",
+  "title": "CobolUnit",
+  "type": "object",
+  "required": ["kind", "id", "name", "range", "division", "purpose", "io", "logic"],
+  "properties": {
+    "kind": { "type": "string", "const": "cobol" },
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9_.:-]{1,64}$" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 200, "description": "parágrafo ou seção" },
+    "range": {
+      "type": "object",
+      "required": ["start_line", "end_line"],
+      "properties": {
+        "start_line": { "type": "integer", "minimum": 1 },
+        "end_line": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "division": {
+      "type": "string",
+      "enum": ["PROCEDURE", "DATA", "ENVIRONMENT", "IDENTIFICATION"],
+      "description": "Unidades documentáveis normalmente estão na PROCEDURE DIVISION"
+    },
+    "purpose": { "type": "string", "minLength": 1, "maxLength": 4000 },
+    "io": {
+      "type": "object",
+      "required": ["working_storage", "files", "inputs", "outputs", "side_effects"],
+      "properties": {
+        "working_storage": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "variáveis relevantes referenciadas no parágrafo"
+        },
+        "files": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "arquivos FD/SELECT acessados (READ/WRITE/REWRITE/OPEN/CLOSE)"
+        },
+        "inputs": { "type": "array", "items": { "type": "string" } },
+        "outputs": { "type": "array", "items": { "type": "string" } },
+        "side_effects": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "control_flow": {
+      "type": "object",
+      "properties": {
+        "perform": {
+          "type": "array",
+          "items": { "type": "string", "description": "parágrafos/sections chamados via PERFORM" }
+        },
+        "goto": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "call": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["program"],
+            "properties": {
+              "program": { "type": "string" },
+              "using": { "type": "array", "items": { "type": "string" } }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "logic": {
+      "type": "object",
+      "required": ["steps", "decisions"],
+      "properties": {
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "text"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,32}$" },
+              "text": { "type": "string", "maxLength": 400 },
+              "kind": {
+                "type": "string",
+                "enum": ["move", "compute", "io", "perform", "call", "evaluate", "if", "loop", "exit", "other"]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "form", "condition"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,32}$" },
+              "form": { "type": "string", "enum": ["IF", "EVALUATE"] },
+              "condition": { "type": "string", "maxLength": 400 },
+              "branches": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["label"],
+                  "properties": {
+                    "label": { "type": "string", "maxLength": 80 },
+                    "path": {
+                      "type": "array",
+                      "items": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,32}$" }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "diagram_suggestion": {
+      "type": "string",
+      "enum": ["flowchart", "sequence", "state", "none"],
+      "default": "flowchart"
+    },
+    "notes": { "type": "string", "maxLength": 2000 }
+  },
+  "additionalProperties": false
+}
