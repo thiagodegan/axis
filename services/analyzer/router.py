@@ -2,6 +2,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from typing import Literal, Tuple
+import os
+from services.analyzer.specialists.generic_llm import analyze_units_generic_llm
 
 Language = Literal["cobol", "python", "javascript", "typescript", "java", "csharp", "go", "ruby", "php", "shell", "unknown"]
 
@@ -142,4 +144,21 @@ def analyze_units(code: str, language: str, mode: Literal["per_unit", "whole_fil
     if lang == "cobol":
         return analyze_units_cobol(code or "")
     # demais linguagens caem no genérico
+    return analyze_units_generic(code or "", language=lang)
+
+def analyze_units(code: str, language: str, path: str, mode: Literal["per_unit", "whole_file"] = "per_unit") -> list[dict]:
+    """
+    Se ANALYZE_WITH_LLM=true, usa o especialista genérico (todas as linguagens).
+    Caso contrário, mantém o mock atual.
+    """
+    use_llm = os.getenv("ANALYZE_WITH_LLM", "false").lower() in ("1","true","yes","on")
+    lang = (language or "unknown").lower()
+
+    if use_llm:
+        # para POC, use sempre o genérico (independente da linguagem)
+        return analyze_units_generic_llm(code, lang, path)
+
+    # --- MOCK antigo (fallback) ---
+    if lang == "cobol":
+        return analyze_units_cobol(code or "")
     return analyze_units_generic(code or "", language=lang)

@@ -183,7 +183,7 @@ def docs_analyze():
 
     code = fv.get("text") or ""
     det  = detect_language(path, code)
-    units = analyze_units(code, det.language, mode="per_unit" if mode != "whole_file" else "whole_file")
+    units = analyze_units(code, det.language, path, mode="per_unit" if mode != "whole_file" else "whole_file")
 
     analysis = {
         "version": "1.0.0",
