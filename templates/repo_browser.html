@@ -37,11 +37,35 @@
             <div class="font-semibold">{{ selected_path }}</div>
             <div class="text-slate-500">ref: {{ ref }}</div>
           </div>
-          <div class="flex items-center gap-2">
-            <a href="{{ url_for('repo_browser', owner=owner, repo=repo, ref=ref, path=selected_path) }}"
-               class="rounded-xl border px-3 py-1.5 hover:bg-slate-50">Atualizar</a>
-            <button class="rounded-xl bg-slate-900 text-white px-4 py-1.5 opacity-60 cursor-not-allowed"
-                    title="Em breve">Gerar documentação</button>
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-sm">
+              <div class="font-semibold">{{ selected_path }}</div>
+              <div class="text-slate-500">ref: {{ ref }}</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <a href="{{ url_for('repo_browser', owner=owner, repo=repo, ref=ref, path=selected_path) }}"
+                class="rounded-xl border px-3 py-1.5 hover:bg-slate-50">Atualizar</a>
+
+              <a href="https://github.com/{{ owner }}/{{ repo }}/blob/{{ ref }}/{{ selected_path }}"
+                target="_blank"
+                class="rounded-xl border px-3 py-1.5 hover:bg-slate-50"
+                title="Abrir arquivo no GitHub (externo)">GitHub ↗</a>
+
+              <select id="gen-mode" class="rounded-xl border px-3 py-1.5">
+                <option value="per_unit" selected>Por função/parágrafo</option>
+                <option value="whole_file">Arquivo inteiro</option>
+              </select>
+
+              {% if selected_path and file_view and file_view.type == 'file' and file_view.is_text %}              
+                <button id="btn-generate"
+                        class="rounded-xl bg-slate-900 text-white px-4 py-1.5 hover:opacity-90"
+                        onclick="openAnalyzeModal()">
+                  Gerar documentação
+                </button>
+              {% else %}
+                <button class="rounded-xl bg-slate-900 text-white px-4 py-1.5 opacity-60 cursor-not-allowed" title="Selecione um arquivo de texto">Gerar documentação</button>
+              {% endif %}
+            </div>
           </div>
         </div>
 
@@ -65,6 +89,154 @@
     </div>
   </section>
 </div>
+
+<!-- Modal de Análise -->
+<div id="analyzeModal" class="fixed inset-0 z-50 hidden">
+  <!-- overlay -->
+  <div class="absolute inset-0 bg-black/40" onclick="closeAnalyzeModal()"></div>
+
+  <!-- card -->
+  <div class="absolute inset-0 grid place-items-center p-4">
+    <div class="w-full max-w-4xl rounded-2xl bg-white shadow-xl">
+      <div class="flex items-center justify-between px-5 py-3 border-b">
+        <div>
+          <div class="text-sm text-slate-500">Documentação</div>
+          <div class="text-base font-semibold truncate">{{ owner }}/{{ repo }}@{{ ref }} — {{ selected_path }}</div>
+        </div>
+        <button class="rounded-lg px-3 py-1.5 hover:bg-slate-100" onclick="closeAnalyzeModal()">Fechar ✕</button>
+      </div>
+
+      <div id="analyzeAlert" class="hidden mx-5 mt-4 rounded-lg border p-3 text-sm"></div>
+
+      <div class="px-5 py-4">
+        <!-- Abas -->
+        <div class="flex items-center gap-2 text-sm">
+          <button id="tab-json" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white" onclick="selectTab('json')">JSON</button>
+          <button id="tab-mermaid" class="px-3 py-1.5 rounded-lg hover:bg-slate-100" onclick="selectTab('mermaid')">Mermaid (em breve)</button>
+        </div>
+
+        <!-- Conteúdos -->
+        <div id="panel-json" class="mt-3">
+          <pre id="analysisJson" class="text-xs overflow-auto rounded-xl border p-3 bg-slate-50 max-h-[60vh] whitespace-pre-wrap">Carregando...</pre>
+        </div>
+
+        <div id="panel-mermaid" class="mt-3 hidden">
+          <div class="rounded-xl border p-3 bg-slate-50 text-sm text-slate-600">
+            Aqui exibiremos o diagrama Mermaid gerado. (Próxima etapa)
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between px-5 py-3 border-t">
+        <div id="analysisMeta" class="text-xs text-slate-500"></div>
+        <div class="flex items-center gap-2">
+          <button class="rounded-xl border px-3 py-1.5 hover:bg-slate-50" onclick="copyJson()">Copiar JSON</button>
+          <button class="rounded-xl border px-3 py-1.5 opacity-70 cursor-not-allowed" title="Em breve">Baixar Mermaid</button>
+          <button class="rounded-xl bg-slate-900 text-white px-4 py-1.5 opacity-70 cursor-not-allowed" title="Em breve">Salvar histórico</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let lastAnalysis = null;
+
+  function openAnalyzeModal() {
+    // Limpa estado
+    lastAnalysis = null;
+    document.getElementById('analysisJson').textContent = 'Carregando...';
+    setAlert(null);
+    selectTab('json');
+
+    // Abre modal
+    document.getElementById('analyzeModal').classList.remove('hidden');
+
+    // Dispara fetch
+    const mode = document.getElementById('gen-mode')?.value || 'per_unit';
+    analyzeRequest(mode);
+  }
+
+  function closeAnalyzeModal() {
+    document.getElementById('analyzeModal').classList.add('hidden');
+  }
+
+  function selectTab(which) {
+    const tabs = ['json', 'mermaid'];
+    tabs.forEach(t => {
+      document.getElementById('tab-' + t).classList.remove('bg-slate-900', 'text-white');
+      document.getElementById('tab-' + t).classList.add('hover:bg-slate-100');
+      document.getElementById('panel-' + t).classList.add('hidden');
+    });
+    document.getElementById('tab-' + which).classList.add('bg-slate-900', 'text-white');
+    document.getElementById('tab-' + which).classList.remove('hover:bg-slate-100');
+    document.getElementById('panel-' + which).classList.remove('hidden');
+  }
+
+  async function analyzeRequest(mode) {
+    try {
+      const res = await fetch('{{ url_for("docs_analyze") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          owner: '{{ owner }}',
+          repo: '{{ repo }}',
+          ref: '{{ ref }}',
+          path: '{{ selected_path | e }}',
+          mode: mode
+        })
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setAlert(`Erro: ${data.error || res.statusText}`, 'error');
+        document.getElementById('analysisJson').textContent = JSON.stringify(data, null, 2);
+        return;
+      }
+
+      lastAnalysis = data;
+      document.getElementById('analysisJson').textContent = JSON.stringify(data, null, 2);
+
+      // meta: contagem e sugestão
+      const meta = [];
+      if (data?.summary?.unit_count != null) meta.push(`Unidades: ${data.summary.unit_count}`);
+      if (data?.summary?.diagram_suggestion) meta.push(`Diagrama sugerido: ${data.summary.diagram_suggestion}`);
+      document.getElementById('analysisMeta').textContent = meta.join(' • ');
+
+    } catch (err) {
+      setAlert('Erro inesperado ao gerar documentação: ' + (err?.message || err), 'error');
+      document.getElementById('analysisJson').textContent = '';
+    }
+  }
+
+  function setAlert(text, kind) {
+    const box = document.getElementById('analyzeAlert');
+    if (!text) {
+      box.classList.add('hidden');
+      box.textContent = '';
+      box.className = 'hidden mx-5 mt-4 rounded-lg border p-3 text-sm';
+      return;
+    }
+    box.classList.remove('hidden');
+    box.textContent = text;
+    box.className = 'mx-5 mt-4 rounded-lg p-3 text-sm border ' + (kind === 'error'
+      ? 'bg-red-50 text-red-700 border-red-200'
+      : 'bg-green-50 text-green-700 border-green-200');
+  }
+
+  async function copyJson() {
+    try {
+      const txt = document.getElementById('analysisJson').textContent || '';
+      await navigator.clipboard.writeText(txt);
+      setAlert('JSON copiado para a área de transferência.', 'success');
+      setTimeout(() => setAlert(null), 1800);
+    } catch {
+      setAlert('Não foi possível copiar o JSON.', 'error');
+    }
+  }
+</script>
+
 
 {% endblock %}
 
