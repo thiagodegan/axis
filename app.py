@@ -9,6 +9,7 @@ from pathlib import Path
 import json
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
+from services.diagram.mermaid import to_mermaid
 
 # Validador JSON Schema (ex.: para validar o output do analisador)
 def _load_json(p: Path):
@@ -217,6 +218,17 @@ def docs_analyze():
 
     return jsonify(analysis), 200
 
+@app.post("/docs/to_mermaid")
+def docs_to_mermaid():
+    payload = request.get_json(silent=True) or {}
+    analysis = payload.get("analysis")
+    if not isinstance(analysis, dict):
+        return jsonify({"error": "Campo 'analysis' é obrigatório e deve ser um objeto."}), 400
+    try:
+        result = to_mermaid(analysis)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": f"Falha ao gerar Mermaid: {e}"}), 500
 
 
 @app.get("/")

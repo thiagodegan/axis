@@ -112,7 +112,7 @@
         <!-- Abas -->
         <div class="flex items-center gap-2 text-sm">
           <button id="tab-json" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white" onclick="selectTab('json')">JSON</button>
-          <button id="tab-mermaid" class="px-3 py-1.5 rounded-lg hover:bg-slate-100" onclick="selectTab('mermaid')">Mermaid (em breve)</button>
+          <button id="tab-mermaid" class="px-3 py-1.5 rounded-lg hover:bg-slate-100" onclick="selectTab('mermaid')">Mermaid</button>
         </div>
 
         <!-- Conteúdos -->
@@ -121,9 +121,8 @@
         </div>
 
         <div id="panel-mermaid" class="mt-3 hidden">
-          <div class="rounded-xl border p-3 bg-slate-50 text-sm text-slate-600">
-            Aqui exibiremos o diagrama Mermaid gerado. (Próxima etapa)
-          </div>
+          <div id="mermaidTabs" class="flex flex-wrap gap-2 mb-2 text-sm"></div>
+          <div id="mermaidContainer" class="rounded-xl border p-3 bg-white max-h-[60vh] overflow-auto"></div>
         </div>
       </div>
 
@@ -142,10 +141,13 @@
 <script>
   let lastAnalysis = null;
 
-  function openAnalyzeModal() {
+  async function openAnalyzeModal() {
     // Limpa estado
     lastAnalysis = null;
     document.getElementById('analysisJson').textContent = 'Carregando...';
+    const btn = document.getElementById('btn-generate');
+    btn?.setAttribute('disabled', 'disabled');
+    btn?.classList.add('opacity-60','cursor-wait');
     setAlert(null);
     selectTab('json');
 
@@ -154,7 +156,9 @@
 
     // Dispara fetch
     const mode = document.getElementById('gen-mode')?.value || 'per_unit';
-    analyzeRequest(mode);
+    await analyzeRequest(mode);
+    btn?.removeAttribute('disabled');
+    btn?.classList.remove('opacity-60','cursor-wait');
   }
 
   function closeAnalyzeModal() {
@@ -179,10 +183,10 @@
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          owner: '{{ owner }}',
-          repo: '{{ repo }}',
-          ref: '{{ ref }}',
-          path: '{{ selected_path | e }}',
+          owner: {{ owner|tojson }},
+          repo: {{ repo|tojson }},
+          ref: {{ ref|tojson }},
+          path: {{ selected_path|tojson }},
           mode: mode
         })
       });
@@ -198,6 +202,8 @@
       lastAnalysis = data;
       document.getElementById('analysisJson').textContent = JSON.stringify(data, null, 2);
 
+      await buildMermaidFromAnalysis(data);
+
       // meta: contagem e sugestão
       const meta = [];
       if (data?.summary?.unit_count != null) meta.push(`Unidades: ${data.summary.unit_count}`);
@@ -207,6 +213,81 @@
     } catch (err) {
       setAlert('Erro inesperado ao gerar documentação: ' + (err?.message || err), 'error');
       document.getElementById('analysisJson').textContent = '';
+    }
+  }
+
+  async function buildMermaidFromAnalysis(analysis) {
+    try {
+      const res = await fetch('{{ url_for("docs_to_mermaid") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ analysis })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setAlert('Falha ao gerar Mermaid: ' + (data.error || res.statusText), 'error');
+        return;
+      }
+      renderMermaidDiagrams(data.diagrams || []);
+    } catch (err) {
+      setAlert('Erro inesperado ao gerar Mermaid: ' + (err?.message || err), 'error');
+    }
+  }
+
+  function renderMermaidDiagrams(diagrams) {
+    const tabs = document.getElementById('mermaidTabs');
+    const container = document.getElementById('mermaidContainer');
+    tabs.innerHTML = '';
+    container.innerHTML = '';
+
+    if (!diagrams.length) {
+      container.innerHTML = '<div class="text-sm text-slate-600">Nenhum diagrama gerado.</div>';
+      return;
+    }
+
+    diagrams.forEach((dg, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'px-3 py-1.5 rounded-lg ' + (idx === 0 ? 'bg-slate-900 text-white' : 'hover:bg-slate-100');
+      btn.textContent = dg.unit_name || dg.unit_id || ('Unidade ' + (idx+1));
+      btn.onclick = () => selectMermaid(diagrams, idx);
+      tabs.appendChild(btn);
+    });
+
+    selectMermaid(diagrams, 0); // renderiza o primeiro
+  }
+
+  async function selectMermaid(diagrams, index) {
+    const container = document.getElementById('mermaidContainer');
+    container.innerHTML = '';
+
+    const dg = diagrams[index];
+    let code = (dg.code || 'flowchart TD\nA[Sem conteúdo]');
+
+    // 1) Normaliza quebras de linha vindas do JSON
+    code = code.replace(/\\n/g, '\n').replace(/\r\n?/g, '\n').trim();
+
+    // 2) Garante que haja uma quebra de linha após a 1ª linha "flowchart X"
+    //    (algumas combinações de template/DOM acabam colando sem \n)
+    code = code.replace(/^(\s*flowchart\s+\w+\s*)(?!\n)/i, '$1\n');
+
+    // 3) Renderiza via API (mais robusto que usar <div class="mermaid"> + init)
+    const id = 'mmd-' + Date.now();
+    try {
+      // mermaid.render retorna { svg, bindFunctions }
+      const { svg } = await mermaid.render(id, code);
+      container.innerHTML = svg;
+      // Foca na aba Mermaid para o usuário ver o resultado
+      selectTab('mermaid');
+    } catch (e) {
+      console.error('Mermaid render error:', e);
+      // Mostra o código que quebrou, ajuda a depurar
+      container.innerHTML = `
+        <div class="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
+          Erro ao renderizar Mermaid. Veja o console para detalhes.
+        </div>
+        <pre class="text-xs overflow-auto rounded-xl border p-3 bg-slate-50 max-h-[40vh] whitespace-pre-wrap"></pre>`;
+      container.querySelector('pre').textContent = code;
+      setAlert(e?.message || e?.str || 'Erro desconhecido ao renderizar Mermaid', 'error');
     }
   }
 
