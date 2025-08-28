@@ -1,0 +1,131 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "unit.generic.schema.json",
+  "title": "GenericCodeUnit",
+  "type": "object",
+  "required": ["kind", "id", "name", "range", "purpose", "io", "logic"],
+  "properties": {
+    "kind": { "type": "string", "const": "generic" },
+    "id": { "type": "string", "pattern": "^[a-zA-Z0-9_.:-]{1,64}$" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "range": {
+      "type": "object",
+      "required": ["start_line", "end_line"],
+      "properties": {
+        "start_line": { "type": "integer", "minimum": 1 },
+        "end_line": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "signature": {
+      "type": "object",
+      "properties": {
+        "parameters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "type": { "type": "string" },
+              "mode": { "type": "string", "enum": ["in", "out", "inout"] },
+              "default": { "type": ["string", "number", "boolean", "null"] }
+            },
+            "additionalProperties": false
+          }
+        },
+        "returns": {
+          "type": ["string", "null"],
+          "description": "tipo/forma de retorno se aplicável"
+        }
+      },
+      "additionalProperties": false
+    },
+    "purpose": { "type": "string", "minLength": 1, "maxLength": 4000 },
+    "io": {
+      "type": "object",
+      "required": ["inputs", "outputs", "side_effects"],
+      "properties": {
+        "inputs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "outputs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "side_effects": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "ex.: grava em DB, chama API externa, escreve arquivo"
+        }
+      },
+      "additionalProperties": false
+    },
+    "logic": {
+      "type": "object",
+      "required": ["steps", "decisions", "calls"],
+      "properties": {
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "text"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,32}$" },
+              "text": { "type": "string", "maxLength": 400 },
+              "kind": {
+                "type": "string",
+                "enum": ["action", "io", "calc", "loop", "assign", "return", "try", "catch", "finally"]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "condition"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,32}$" },
+              "condition": { "type": "string", "maxLength": 300 },
+              "true_path": {
+                "type": "array",
+                "items": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,32}$" }
+              },
+              "false_path": {
+                "type": "array",
+                "items": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,32}$" }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "calls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["target"],
+            "properties": {
+              "target": { "type": "string", "maxLength": 200 },
+              "kind": { "type": "string", "enum": ["function", "method", "api", "db", "queue", "other"] },
+              "notes": { "type": "string", "maxLength": 300 }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "risks": {
+      "type": "array",
+      "items": { "type": "string", "maxLength": 300 }
+    },
+    "diagram_suggestion": {
+      "type": "string",
+      "enum": ["flowchart", "sequence", "state", "class", "er", "dfd", "none"]
+    }
+  },
+  "additionalProperties": false
+}
