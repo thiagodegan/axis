@@ -1,5 +1,6 @@
 from urllib.parse import quote
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from services.analyzer.router import detect_language, analyze_units
 from services.db import Base, engine, get_db
 from models.config import Config
 from services.crypto import encrypt, decrypt
@@ -111,6 +112,74 @@ def set_config_value(db, key: str, value: str | None):
         item = Config(key=key, value=value)
         db.add(item)
     db.commit()
+
+@app.post("/docs/analyze")
+def docs_analyze():
+    """
+    Body JSON esperado:
+    {
+      "owner": "...",
+      "repo": "...",
+      "ref": "main" | "sha",
+      "path": "src/file.ext",
+      "mode": "per_unit" | "whole_file"
+    }
+    Retorna JSON compatível com analysis.schema.json (mock).
+    """
+    data = request.get_json(silent=True) or {}
+    owner = data.get("owner")
+    repo = data.get("repo")
+    ref = data.get("ref")
+    path = data.get("path")
+    mode = data.get("mode") or "per_unit"
+
+    if not all([owner, repo, ref, path]):
+        return jsonify({"error": "Campos obrigatórios: owner, repo, ref, path"}), 400
+
+    # Token obrigatório
+    token = _require_token()
+    if token is None:
+        return jsonify({"error": "Token não configurado"}), 400
+
+    # Busca conteúdo do arquivo via GitHub
+    gh = GitHubClient(token)
+    try:
+        file_view = gh.get_file_content(owner, repo, path, ref)
+    except Exception as e:
+        return jsonify({"error": f"Falha ao obter arquivo: {e}"}), 500
+
+    if not file_view or file_view.get("type") != "file" or not file_view.get("is_text"):
+        return jsonify({"error": "Arquivo não é texto ou não foi possível obter conteúdo."}), 400
+
+    code = file_view.get("text") or ""
+    det = detect_language(path, code)
+
+    units = analyze_units(code, det.language, mode="per_unit" if mode != "whole_file" else "whole_file")
+
+    analysis = {
+        "version": "1.0.0",
+        "file": {
+            "path": path,
+            "sha": file_view.get("sha") or "unknown",
+            "repo": repo,
+            "owner": owner,
+            "size_bytes": file_view.get("size") or 0
+        },
+        "ref": ref,
+        "language": det.language,
+        "detector": {
+            "method": det.method,
+            "confidence": det.confidence
+        },
+        "units": units,
+        "summary": {
+            "unit_count": len(units),
+            "diagram_suggestion": "flowchart",
+            "notes": "Resultado mock gerado pelo router; LangChain será plugado depois."
+        }
+    }
+    return jsonify(analysis), 200
+
 
 @app.get("/")
 def index():
