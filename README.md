@@ -1,26 +1,30 @@
-# 🚀 FIAP Challenge - FORD
+# RECODER
 
-Ferramenta de apoio à migração de código legado com GenIA
+![Python](https://img.shields.io/badge/Python-3.x-blue)
+![Flask](https://img.shields.io/badge/Flask-2.x-orange)
+![GitHub](https://img.shields.io/badge/GitHub-Integration-green)
+
+Ferramenta de apoio à **migração de código legado** utilizando **Inteligência Artificial (GenIA)** desenvolvida para o Challenge FIAP 2025.
 
 ---
 
-## 📖 Sobre o Projeto
+## Sobre o Projeto
 
 Este projeto tem como objetivo apoiar a **FORD** no processo de **migração de sistemas legados** (COBOL, ASP Clássico, AngularJS, bancos de dados antigos, etc.), utilizando **Inteligência Artificial** para:
 
-- 📄 Documentar automaticamente código legado.
-- 💡 Sugerir estruturas modernas equivalentes.
-- 🔗 Integrar com o GitHub para facilitar o acesso a repositórios.
-- 🖼️ Gerar fluxogramas automáticos (via **Mermaid**).
-- 🎧 Proporcionar uma experiência de desenvolvimento no estilo **Vibe Coding**.
+- **Documentação automática** de código legado.
+- **Sugestões de estruturas modernas** equivalentes.
+- **Integração com GitHub** para facilitar acesso e versionamento.
+- **Geração automática de fluxogramas** com **Mermaid**.
+- Experiência de desenvolvimento no modo **Vibe Coding**.
 
-A solução será desenvolvida como um **webapp em Flask (Python)**, com integração ao **GitHub** e armazenamento local em **SQLite** para configurações de usuário.
+O projeto é desenvolvido em **Python/Flask**, com armazenamento local em **SQLite** para configurações de usuário.
 
 ---
 
-## ⚙️ Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
-- **Python 3.x**
+- **Python 3**
 - **Flask** (backend web)
 - **LangChain** (análise e documentação do código)
 - **Mermaid** (geração de fluxogramas)
@@ -29,7 +33,7 @@ A solução será desenvolvida como um **webapp em Flask (Python)**, com integra
 
 ---
 
-## 🛠️ Como rodar o projeto
+## Como rodar o projeto localmente
 
 ### 1. Clonar o repositório
 
@@ -42,6 +46,11 @@ cd NOME-DO-PROJETO
 
 ```bash
 python3 -m venv venv
+```
+ou
+
+```bash
+python -m venv venv
 ```
 
 ### 3. Ativar ambiente virtual
@@ -58,21 +67,28 @@ python3 -m venv venv
   .\venv\Scripts\Activate
   ```
 
-### 4. Instalar dependências
+### 4. Instalar as dependências
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Congelar dependências (sempre que instalar novos pacotes)
+### 5. Congelar as dependências (sempre que instalar novos pacotes)
 
 ```bash
 pip freeze > requirements.txt
 ```
 
+### 6. Rodar o Flask Localmente
+
+```bash
+python app.py
+```
+O webapp estará disponível em http://127.0.0.1:5000.
+
 ---
 
-## 📌 Próximos Passos
+## Próximos Passos
 
 - [ ] Criar a estrutura inicial em Flask
 - [ ] Configurar integração com GitHub API
@@ -82,15 +98,16 @@ pip freeze > requirements.txt
 
 ---
 
-## 👨‍💻 Equipe
+## Equipe
 
-- Nome 1
-- Nome 2
-- Nome 3
-- Nome 4
+- Thiago Degan
+- Rebecca Damasceno
+- Jacqueline Novaes
+- Leandro Cavallari
+- Sofia Sawczenko
 
 ---
 
-## 📄 Licença
+## Licença
 
 Projeto acadêmico desenvolvido para o **FIAP Challenge - FORD**.
