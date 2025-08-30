@@ -94,13 +94,13 @@
 
   <!-- card -->
   <div class="absolute inset-0 grid place-items-center p-4">
-    <div class="w-full max-w-4xl rounded-2xl bg-white shadow-xl">
-      <div class="flex items-center justify-between px-5 py-3 border-b">
+    <div class="w-full max-w-4xl rounded-3xl bg-slate-800 shadow-xl p-10 text-white border-slate-700 border">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-slate-700">
         <div>
-          <div class="text-sm text-slate-500">Documentação</div>
-          <div class="text-base font-semibold truncate">{{ owner }}/{{ repo }}@{{ ref }} — {{ selected_path }}</div>
+          <div class="text-sm text-slate-400">Documentação</div>
+          <div class="text-base font-semibold truncate text-white">{{ owner }}/{{ repo }}@{{ ref }} — {{ selected_path }}</div>
         </div>
-        <button class="rounded-lg px-3 py-1.5 hover:bg-slate-100" onclick="closeAnalyzeModal()">Fechar ✕</button>
+        <button class="rounded-lg px-3 py-1.5 hover:bg-slate-700" onclick="closeAnalyzeModal()">Fechar ✕</button>
       </div>
 
       <div id="analyzeAlert" class="hidden mx-5 mt-4 rounded-lg border p-3 text-sm"></div>
@@ -109,24 +109,24 @@
         <!-- Abas -->
         <div class="flex items-center gap-2 text-sm">
           <button id="tab-json" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white" onclick="selectTab('json')">JSON</button>
-          <button id="tab-mermaid" class="px-3 py-1.5 rounded-lg hover:bg-slate-100" onclick="selectTab('mermaid')">Mermaid</button>
+          <button id="tab-mermaid" class="px-3 py-1.5 rounded-lg hover:bg-slate-700" onclick="selectTab('mermaid')">Mermaid</button>
         </div>
 
         <!-- Conteúdos -->
         <div id="panel-json" class="mt-3">
-          <pre id="analysisJson" class="text-xs overflow-auto rounded-xl border p-3 bg-slate-50 max-h-[60vh] whitespace-pre-wrap">Carregando...</pre>
+          <pre id="analysisJson" class="text-xs overflow-auto rounded-xl border p-3 bg-slate-700 max-h-[60vh] whitespace-pre-wrap text-white">Carregando...</pre>
         </div>
 
         <div id="panel-mermaid" class="mt-3 hidden">
           <div id="mermaidTabs" class="flex flex-wrap gap-2 mb-2 text-sm"></div>
-          <div id="mermaidContainer" class="rounded-xl border p-3 bg-white max-h-[60vh] overflow-auto"></div>
+          <div id="mermaidContainer" class="rounded-xl border p-3 bg-slate-700 max-h-[60vh] overflow-auto text-white"></div>
         </div>
       </div>
 
-      <div class="flex items-center justify-between px-5 py-3 border-t">
-        <div id="analysisMeta" class="text-xs text-slate-500"></div>
+      <div class="flex items-center justify-between px-5 py-3 border-t border-slate-700">
+        <div id="analysisMeta" class="text-xs text-slate-400"></div>
         <div class="flex items-center gap-2">
-          <button class="rounded-xl border px-3 py-1.5 hover:bg-slate-50" onclick="copyJson()">Copiar JSON</button>
+          <button class="rounded-xl border px-3 py-1.5 hover:bg-slate-700" onclick="copyJson()">Copiar JSON</button>
           <button class="rounded-xl border px-3 py-1.5 opacity-70 cursor-not-allowed" title="Em breve">Baixar Mermaid</button>
           <button class="rounded-xl bg-slate-900 text-white px-4 py-1.5 opacity-70 cursor-not-allowed" title="Em breve">Salvar histórico</button>
         </div>
@@ -134,6 +134,7 @@
     </div>
   </div>
 </div>
+
 
 <script>
   let lastAnalysis = null;
