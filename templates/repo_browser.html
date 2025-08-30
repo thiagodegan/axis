@@ -2,63 +2,59 @@
 {% from "_macros.html" import render_tree %}
 {% block content %}
 
-<div class="grid grid-cols-12 gap-4">
+<div class="flex gap-4 w-full">
   <!-- Sidebar -->
-  <aside class="col-span-12 md:col-span-4 lg:col-span-3 xl:col-span-3">
-    <div class="rounded-2xl bg-white shadow p-4 space-y-3">
+  <aside class="col-span-12 md:col-span-5 lg:col-span-5 xl:col-span-4 rounded-2xl bg-gray-800 shadow p-4 space-y-3 text-slate-100">
+    <div class="rounded-2xl bg-slate-900 shadow p-4 space-y-3 text-slate-100">
       <div>
-        <div class="text-sm text-slate-500">Repositório</div>
+        <div class="text-sm text-slate-400">Repositório</div>
         <div class="font-semibold">{{ owner }}/{{ repo }}</div>
       </div>
 
       <form method="get" class="flex items-center gap-2">
         <input type="hidden" name="path" value="{{ selected_path or '' }}" />
-        <label class="text-sm text-slate-500">Branch</label>
-        <select name="ref" class="w-full rounded-xl border px-3 py-1.5" onchange="this.form.submit()">
+        <label class="text-sm text-slate-400">Branch</label>
+        <select name="ref" class="w-full rounded-xl border border-slate-700 bg-slate-800 text-white px-3 py-1.5" onchange="this.form.submit()">
           {% for b in branches %}
             <option value="{{ b.name }}" {% if b.name == ref %}selected{% endif %}>{{ b.name }}</option>
           {% endfor %}
         </select>
       </form>
 
-      <div class="text-sm text-slate-500">Arquivos</div>
+      <div class="text-sm text-slate-400">Arquivos</div>
       <div class="max-h-[65vh] overflow-auto pr-1">
         {{ render_tree(tree, owner, repo, ref) }}
       </div>
     </div>
   </aside>
 
-  <!-- Editor / Viewer -->
-  <section class="col-span-12 md:col-span-8 lg:col-span-9 xl:col-span-9">
-    <div class="rounded-2xl bg-white shadow p-4 h-full">
-      {% if selected_path and file_view %}
-        <div class="flex items-center justify-between mb-3">
-          <div class="text-sm">
-            <div class="font-semibold">{{ selected_path }}</div>
-            <div class="text-slate-500">ref: {{ ref }}</div>
-          </div>
-          <div class="flex items-center justify-between mb-3">
+<!-- Editor / Viewer -->
+  <section class="col-span-12 md:col-span-7 lg:col-span-8 xl:col-span-9">
+    <div class="rounded-3xl bg-slate-800 shadow-xl p-6 text-white border-slate-700 border h-full">
+      <div>
+        {% if selected_path and file_view %}
+          <div class="flex items-center justify-between mb-6">
             <div class="text-sm">
               <div class="font-semibold">{{ selected_path }}</div>
-              <div class="text-slate-500">ref: {{ ref }}</div>
+              <div class="text-slate-300">ref: {{ ref }}</div>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-3">
               <a href="{{ url_for('repo_browser', owner=owner, repo=repo, ref=ref, path=selected_path) }}"
-                class="rounded-xl border px-3 py-1.5 hover:bg-slate-50">Atualizar</a>
+                 class="text-sm rounded-xl border border-slate-600 px-3 py-1.5 hover:bg-slate-600">Atualizar</a>
 
               <a href="https://github.com/{{ owner }}/{{ repo }}/blob/{{ ref }}/{{ selected_path }}"
-                target="_blank"
-                class="rounded-xl border px-3 py-1.5 hover:bg-slate-50"
-                title="Abrir arquivo no GitHub (externo)">GitHub ↗</a>
+                 target="_blank"
+                 class="text-sm rounded-xl border border-slate-600 px-3 py-1.5 hover:bg-slate-600"
+                 title="Abrir arquivo no GitHub (externo)">GitHub ↗</a>
 
-              <select id="gen-mode" class="rounded-xl border px-3 py-1.5">
+              <select id="gen-mode" class="text-sm rounded-xl border border-slate-600 bg-slate-800 text-white px-3 py-1.5">
                 <option value="per_unit" selected>Por função/parágrafo</option>
                 <option value="whole_file">Arquivo inteiro</option>
               </select>
 
               {% if selected_path and file_view and file_view.type == 'file' and file_view.is_text %}              
                 <button id="btn-generate"
-                        class="rounded-xl bg-slate-900 text-white px-4 py-1.5 hover:opacity-90"
+                        class="text-sm rounded-xl bg-slate-900 text-white px-4 py-1.5 hover:opacity-90"
                         onclick="openAnalyzeModal()">
                   Gerar documentação
                 </button>
@@ -67,28 +63,29 @@
               {% endif %}
             </div>
           </div>
-        </div>
 
-        {% if file_view.type == 'file' and file_view.is_text and file_view.text %}
-          <pre class="text-xs overflow-auto rounded-xl border p-3 bg-slate-50 h-[70vh] whitespace-pre-wrap">{{ file_view.text | e }}</pre>
-        {% elif file_view.type == 'file' and not file_view.is_text %}
-          <div class="text-slate-600">Este parece ser um arquivo binário (não exibível como texto).</div>
-        {% elif file_view.type == 'dir' %}
-          <div class="text-slate-600">O caminho selecionado é um diretório.</div>
+          {% if file_view.type == 'file' and file_view.is_text and file_view.text %}
+            <pre class="text-xs overflow-auto rounded-xl border border-slate-600 p-3 bg-slate-800 text-white h-[70vh] whitespace-pre-wrap">{{ file_view.text | e }}</pre>
+          {% elif file_view.type == 'file' and not file_view.is_text %}
+            <div class="text-slate-400">Este parece ser um arquivo binário (não exibível como texto).</div>
+          {% elif file_view.type == 'dir' %}
+            <div class="text-slate-400">O caminho selecionado é um diretório.</div>
+          {% else %}
+            <div class="text-slate-400">Não foi possível exibir o conteúdo.</div>
+          {% endif %}
         {% else %}
-          <div class="text-slate-600">Não foi possível exibir o conteúdo.</div>
-        {% endif %}
-      {% else %}
-        <div class="h-full grid place-items-center text-slate-500">
-          <div class="text-center px-6">
-            <div class="text-lg font-semibold mb-1">Selecione um arquivo à esquerda</div>
-            <div>O conteúdo aparecerá aqui com a opção de gerar documentação.</div>
+          <div class="h-full grid place-items-center text-slate-400">
+            <div class="text-center px-6">
+              <div class="text-lg font-semibold mb-1">Selecione um arquivo à esquerda</div>
+              <div>O conteúdo aparecerá aqui com a opção de gerar documentação.</div>
+            </div>
           </div>
-        </div>
-      {% endif %}
+        {% endif %}
+      </div>
     </div>
   </section>
 </div>
+
 
 <!-- Modal de Análise -->
 <div id="analyzeModal" class="fixed inset-0 z-50 hidden">

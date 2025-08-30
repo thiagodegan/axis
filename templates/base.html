@@ -3,39 +3,53 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>FIAP Challenge - FORD</title>
+    <title>RECODER</title>
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}" />
+
     <!-- Tailwind (CDN - para desenvolvimento rápido) -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    <!-- Classes de fonte Roboto -->
+    <style>
+      .roboto-regular { font-family: "Roboto", sans-serif; font-weight: 400; font-style: normal; }
+      .roboto-bold { font-family: "Roboto", sans-serif; font-weight: 700; font-style: normal; }
+      .roboto-italic { font-family: "Roboto", sans-serif; font-weight: 400; font-style: italic; }
+    </style>
   </head>
-  <body class="bg-slate-100 text-slate-800">
-    <header class="border-b bg-white">
-      <div
-        class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between"
-      >
-        <h1 class="text-xl font-bold">
-          <a href="{{ url_for('index') }}">FIAP Challenge - FORD</a>
+
+  <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+    <header class="border-b border-slate-700 bg-slate-800">
+      <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+        <h1 class="text-xl font-bold roboto-bold">
+          <a href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Recoder" class="h-10">
+            <span class="sr-only">Recoder</span>
+          </a>
         </h1>
-        <nav class="flex items-center gap-4 text-sm">
-          <a class="hover:underline" href="{{ url_for('index') }}">Home</a>
-          <a class="hover:underline" href="{{ url_for('settings_get') }}"
-            >Settings</a
-          >
-          <a class="hover:underline" href="{{ url_for('github_repos') }}"
-            >GitHub Repos</a
-          >
+        <nav class="flex items-center gap-6 text-sm text-slate-300 roboto-regular">
+          <a class="hover:text-blue-400" href="{{ url_for('index') }}">Home</a>
+          <a class="hover:text-blue-400" href="{{ url_for('settings_get') }}">Settings</a>
+          <a class="hover:text-blue-400" href="{{ url_for('github_repos') }}">GitHub Repos</a>
         </nav>
       </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 py-8">
+    <main class="flex-1 max-w-full mx-auto px-4 py-8 roboto-regular">
       {% block content %}{% endblock %}
     </main>
 
-    <footer class="border-t bg-white">
-      <div class="max-w-5xl mx-auto px-4 py-4 text-sm text-slate-500">
-        &copy; {{ 2025 }} Equipe FIAP
+    <footer class="border-t border-slate-700 bg-slate-800 roboto-regular">
+      <div class="max-w-5xl mx-auto px-4 py-4 text-sm text-slate-400">
+        &copy; {{ 2025 }} Recoder
       </div>
     </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <script>
       mermaid.initialize({ startOnLoad: false, securityLevel: "loose" });

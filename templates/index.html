@@ -1,74 +1,75 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+{% block content %}
 
-<div class="max-w-3xl mx-auto space-y-6">
-  <div class="rounded-2xl bg-white shadow p-8">
-    <h2 class="text-2xl font-semibold mb-2">Bem-vindo 👋</h2>
-    <p class="text-slate-600">
-      Esta ferramenta ajuda na documentação e modernização de código legado,
-      integrando com o GitHub e gerando fluxogramas com Mermaid.
+<div class="max-w-3xl mx-auto space-y-6 text-center">
+  <div class="rounded-3xl bg-slate-800 shadow-xl p-10 text-white border-slate-700 border">
+    <h2 class="text-4xl font-extrabold mb-4 roboto-bold">RECODER</h2>
+    <p class="text-gray-300 text-lg mb-4 roboto-regular">
+      <!-- O codigo é legado, mas a sua documentação nao precisar ser! -->
+    </p>
+    <p class="text-gray-400 text-base roboto-regular mb-12">
+      Conecte-se ao seu repositório e visualize a lógica do código por meio de fluxogramas intuitivos, entendendo seu legado de forma rápida e visual.
     </p>
 
-    <div class="mt-6 flex flex-wrap items-center gap-3">
-      <!-- Botão principal: decide rota automaticamente (/enter) -->
+
+
+    <div class="mt-6 flex flex-col md:flex-row justify-center items-center gap-4">
+      <!-- Botão principal -->
       <a
         href="{{ url_for('enter') }}"
-        class="inline-flex items-center gap-2 rounded-xl bg-slate-900 text-white px-5 py-2.5 hover:opacity-90"
+        class="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 text-white px-6 py-3 text-base font-semibold hover:bg-blue-500 roboto-bold"
       >
         Entrar {% if has_token %}
-        <span class="text-xs text-slate-300">(token encontrado)</span>
+        <span class="text-xs text-gray-300">(token encontrado)</span>
         {% else %}
-        <span class="text-xs text-slate-300">(configure o token)</span>
+        <span class="text-xs text-gray-300">(configure o token)</span>
         {% endif %}
       </a>
 
-      <!-- Acesso direto às telas (atalhos) -->
+      <!-- Atalhos -->
       <a
         href="{{ url_for('settings_get') }}"
-        class="inline-flex items-center gap-2 rounded-xl border px-4 py-2 hover:bg-slate-50"
+        class="inline-flex items-center justify-center gap-2 rounded-2xl border border-gray-600 px-6 py-3 hover:bg-gray-700 text-base roboto-regular"
       >
         Configurar Token
       </a>
 
       <a
         href="{{ url_for('github_repos') }}"
-        class="inline-flex items-center gap-2 rounded-xl border px-4 py-2 hover:bg-slate-50"
+        class="inline-flex items-center justify-center gap-2 rounded-2xl border border-gray-600 px-6 py-3 hover:bg-gray-700 text-base roboto-regular"
       >
         Ver Repositórios
       </a>
     </div>
 
-    <div
-      class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-slate-600"
-    >
-      <div class="rounded-xl border p-4">
-        <div class="font-semibold mb-1">Status do Token</div>
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+      <div class="rounded-2xl border border-gray-600 p-5 bg-gray-700">
+        <div class="font-bold text-lg mb-2 roboto-bold">Status do Token</div>
         {% if has_token %}
-        <div class="text-green-700">Configurado ✅</div>
-        <div class="text-slate-500 mt-1">Pronto para listar repositórios.</div>
+        <div class="text-green-400 font-light text-sm">Configurado ✅</div>
+        <div class="text-gray-400 mt-1 text-sm roboto-regular">Pronto para listar repositórios.</div>
         {% else %}
-        <div class="text-red-700">Não configurado ❌</div>
-        <div class="text-slate-500 mt-1">Clique em “Configurar Token”.</div>
+        <div class="text-red-400 font-light text-sm">Não configurado ❌</div>
+        <div class="text-gray-400 mt-1 text-sm roboto-regular">Clique em “Configurar Token”.</div>
         {% endif %}
       </div>
-      <div class="rounded-xl border p-4">
-        <div class="font-semibold mb-1">Próximo passo</div>
-        <div>Navegar até um arquivo do repositório e gerar documentação.</div>
+
+      <div class="rounded-2xl border border-gray-600 p-5 bg-gray-700">
+        <div class="font-bold text-lg mb-2 roboto-bold">Próximo passo</div>
+        <div class="text-gray-400 text-sm roboto-regular">Navegar até um arquivo do repositório e gerar documentação.</div>
       </div>
-      <div class="rounded-xl border p-4">
-        <div class="font-semibold mb-1">Atalhos úteis</div>
-        <ul class="list-disc list-inside space-y-1">
+
+      <div class="rounded-2xl border border-gray-600 p-5 bg-gray-700">
+        <div class="font-bold text-lg mb-2 roboto-bold">Atalhos úteis</div>
+        <ul class="list-disc list-inside space-y-1 text-gray-400 text-sm roboto-regular">
           <li>
-            <a class="underline" href="{{ url_for('health') }}">/health</a>
+            <a class="underline hover:text-blue-400" href="{{ url_for('health') }}">/health</a>
           </li>
           <li>
-            <a class="underline" href="{{ url_for('settings_get') }}"
-              >/settings</a
-            >
+            <a class="underline hover:text-blue-400" href="{{ url_for('settings_get') }}">/settings</a>
           </li>
           <li>
-            <a class="underline" href="{{ url_for('github_repos') }}"
-              >/github/repos</a
-            >
+            <a class="underline hover:text-blue-400" href="{{ url_for('github_repos') }}">/github/repos</a>
           </li>
         </ul>
       </div>

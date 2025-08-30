@@ -1,51 +1,48 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} 
+{% block content %}
 <div class="max-w-5xl mx-auto space-y-4">
-  <div class="rounded-2xl bg-white shadow p-6">
-    <div class="flex items-center justify-between">
-      <h2 class="text-xl font-semibold">Repositórios do GitHub</h2>
-      <a href="{{ url_for('settings_get') }}" class="text-sm underline"
-        >Configurações</a
-      >
+  <div class="rounded-2xl bg-slate-800 shadow-lg p-6">
+    <div class="rounded-3xl bg-slate-800 shadow-xl p-10 text-white border-slate-700 border">
+      <h2 class="text-xl font-semibold text-slate-100">Repositórios do GitHub</h2>
+      <a href="{{ url_for('settings_get') }}" class="text-sm underline text-blue-400 hover:text-blue-300">
+        Configurações
+      </a>
     </div>
-    <div class="mt-4 overflow-hidden rounded-xl border">
-      <table class="w-full text-sm">
-        <thead class="bg-slate-50 text-slate-600">
+    <div class="mt-4 overflow-hidden rounded-xl border border-slate-700">
+      <table class="w-full text-sm border-collapse">
+        <thead class="bg-slate-700 text-slate-300 text-sm">
           <tr>
-            <th class="text-left p-3">Nome</th>
-            <th class="text-left p-3">Owner</th>
-            <th class="text-left p-3">Privado</th>
-            <th class="text-left p-3">Atualizado</th>
-            <th class="text-left p-3">Descrição</th>
+            <th class="text-center p-3">Nome</th>
+            <th class="text-center p-3">Repositório</th>
+            <th class="text-center p-3">Owner</th>
+            <th class="text-center p-3">Privado</th>
+            <th class="text-center p-3">Atualizado</th>
+            <th class="text-center p-3">Descrição</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="text-sm">
           {% for r in repos %}
-          <tr class="border-t hover:bg-slate-50">
-            <td class="p-3">
-              <!-- Abre o navegador interno (IDE-like) -->
-              <a
-                href="{{ url_for('repo_browser', owner=r.owner, repo=r.name) }}"
-                class="underline font-medium"
-                >Abrir aqui</a
-              >
+          <tr class="border-t border-slate-600 odd:bg-slate-800 even:bg-slate-900 hover:bg-slate-700 transition-colors duration-150">
+            <td class="p-3 text-center">
+              <a href="{{ url_for('repo_browser', owner=r.owner, repo=r.name) }}"
+                 class="underline font-medium text-blue-400 hover:text-blue-300">
+                Abrir aqui
+              </a>
               <span class="mx-2 text-slate-400">|</span>
-              <!-- Abre no GitHub em nova guia -->
-              <a
-                href="{{ r.html_url }}"
-                target="_blank"
-                class="underline"
-                title="Abrir no GitHub (externo)"
-                >GitHub ↗</a
-              >
+              <a href="{{ r.html_url }}" target="_blank" class="underline text-blue-400 hover:text-blue-300"
+                 title="Abrir no GitHub (externo)">
+                GitHub ↗
+              </a>
             </td>
-            <td class="p-3">{{ r.owner }}</td>
-            <td class="p-3">{{ "Sim" if r.private else "Não" }}</td>
-            <td class="p-3">{{ r.updated_at }}</td>
-            <td class="p-3">{{ r.description or "" }}</td>
+            <td class="p-3 text-slate-100 font-medium text-center">{{ r.name }}</td>
+            <td class="p-3 text-slate-100 text-center">{{ r.owner }}</td>
+            <td class="p-3 text-slate-100 text-center">{{ "Sim" if r.private else "Não" }}</td>
+            <td class="p-3 text-slate-100 text-center">{{ r.updated_at }}</td>
+            <td class="p-3 text-slate-200 italic text-center">{{ r.description or "-" }}</td>
           </tr>
           {% else %}
           <tr>
-            <td colspan="5" class="p-4 text-slate-500">
+            <td colspan="6" class="p-4 text-slate-500 text-center">
               Nenhum repositório encontrado.
             </td>
           </tr>
